@@ -43,3 +43,6 @@ bin/
 /repo/
 /latest.log
 /logs/
+/run/repositories/
+/run/logs/
+/run/latest.log

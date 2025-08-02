@@ -1,12 +1,26 @@
 plugins {
     id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.8.0'
+    id 'idea'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 group = 'org.mangorage'
 version = '1.0-SNAPSHOT'
 
+application {
+    mainClass = "com.reposilite.ReposiliteLauncherKt"
+}
+
+run {
+    workingDir = file("run")
+    standardInput = System.in
+}
+
 repositories {
     mavenCentral()
+
     maven {
         url = 'https://maven.reposilite.com/releases'
     }

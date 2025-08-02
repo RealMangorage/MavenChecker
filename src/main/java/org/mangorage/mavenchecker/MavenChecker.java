@@ -1,7 +1,6 @@
 package org.mangorage.mavenchecker;
 
 import com.reposilite.maven.api.DeployEvent;
-import com.reposilite.plugin.api.Event;
 import com.reposilite.plugin.api.Facade;
 import com.reposilite.plugin.api.Plugin;
 import com.reposilite.plugin.api.ReposilitePlugin;
@@ -9,11 +8,11 @@ import com.reposilite.storage.api.Location;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Plugin(name = "mavenchecker")
 public final class MavenChecker extends ReposilitePlugin {
@@ -24,7 +23,7 @@ public final class MavenChecker extends ReposilitePlugin {
         }
     }
 
-    public record Data(long created, List<Location> locations) {}
+    public record Data(AtomicLong lastUpdated, List<Location> locations) {}
 
 
     public final Map<Info, Data> infoCache = new ConcurrentHashMap<>();
@@ -32,7 +31,7 @@ public final class MavenChecker extends ReposilitePlugin {
     public void checkCache() {
         infoCache.forEach((info, data) -> {
             // Wait atleast 5 seconds to ensure we got everything!
-            if (System.currentTimeMillis() - data.created() > 5000) {
+            if (System.currentTimeMillis() - data.lastUpdated().get() > 5000) {
                 newArtifacts(info, data);
                 infoCache.remove(info);
             }
@@ -50,8 +49,7 @@ public final class MavenChecker extends ReposilitePlugin {
 
     @Override
     public @Nullable Facade initialize() {
-        System.out.println("Init Plugin");
-
+        extensions().getLogger().debug("Init MavenChecker Plugin");
 
         Executors.newSingleThreadExecutor().execute(() -> {
             while (true) {
@@ -64,21 +62,22 @@ public final class MavenChecker extends ReposilitePlugin {
             }
         });
 
-
         extensions().registerEvent(DeployEvent.class, event -> {
-            extensions().getLogger().info("START");
-            extensions().getLogger().info(event.getGav());
+            extensions().getLogger().debug("START");
+            extensions().getLogger().debug(event.getGav());
+            extensions().getLogger().debug("END");
 
             if (!event.getGav().contains("/maven-metadata.xml")) {
                 final Info info = extractGAV(event.getGav().toString());
                 if (info != null) {
-                    final var created = System.currentTimeMillis();
-                    infoCache.computeIfAbsent(info, a -> new Data(created, new ArrayList<>()))
-                            .locations()
-                            .add(event.getGav());
+                    final var timeStamp = System.currentTimeMillis();
+                    final var data = infoCache.computeIfAbsent(info, a -> new Data(new AtomicLong(timeStamp), new ArrayList<>()));
+                    data.locations().add(event.getGav());
+                    data.lastUpdated().set(timeStamp);
                 }
             }
         });
+
         return null;
     }
 
@@ -87,7 +86,7 @@ public final class MavenChecker extends ReposilitePlugin {
         String[] parts = path.split("/");
 
         if (parts.length < 4) {
-            extensions().getLogger().debug("Failed to get group/artifact/version info");
+            extensions().getLogger().error("Failed to get group/artifact/version info");
             return null;
         }
 

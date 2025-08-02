@@ -23,7 +23,10 @@ public final class MavenChecker extends ReposilitePlugin {
         }
     }
 
-    public record Data(AtomicLong lastUpdated, List<Location> locations) {}
+    /**
+     * @param created -> Defines when we first created this object...
+     */
+    public record Data(long created, AtomicLong lastUpdated, List<Location> locations) {}
 
 
     public final Map<Info, Data> infoCache = new ConcurrentHashMap<>();
@@ -39,7 +42,7 @@ public final class MavenChecker extends ReposilitePlugin {
     }
 
     public void newArtifacts(Info info, Data data) {
-        extensions().getLogger().info("Got new Artifact -> " + info.asString());
+        extensions().getLogger().info("Got new Artifact (Took %s ms) -> ".formatted(data.lastUpdated().get() - data.created()) + info.asString());
         data.locations().forEach(location -> {
             extensions().getLogger().info(location.toString());
         });
@@ -71,7 +74,7 @@ public final class MavenChecker extends ReposilitePlugin {
                 final Info info = extractGAV(event.getGav().toString());
                 if (info != null) {
                     final var timeStamp = System.currentTimeMillis();
-                    final var data = infoCache.computeIfAbsent(info, a -> new Data(new AtomicLong(timeStamp), new ArrayList<>()));
+                    final var data = infoCache.computeIfAbsent(info, a -> new Data(timeStamp, new AtomicLong(timeStamp), new ArrayList<>()));
                     data.locations().add(event.getGav());
                     data.lastUpdated().set(timeStamp);
                 }

@@ -34,6 +34,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
 
     implementation("com.reposilite:reposilite:3.5.25:all")
+    implementation("club.minnced:discord-webhooks:0.8.4")
 }
 
 test {

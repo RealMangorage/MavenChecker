@@ -46,3 +46,4 @@ bin/
 /run/repositories/
 /run/logs/
 /run/latest.log
+run/reposilite.db

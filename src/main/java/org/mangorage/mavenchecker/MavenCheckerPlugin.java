@@ -1,18 +1,13 @@
 package org.mangorage.mavenchecker;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.reposilite.configuration.shared.SharedConfigurationFacade;
 import com.reposilite.maven.api.DeployEvent;
-import com.reposilite.plugin.PluginLoader;
 import com.reposilite.plugin.api.Facade;
 import com.reposilite.plugin.api.Plugin;
 import com.reposilite.plugin.api.ReposilitePlugin;
 import com.reposilite.storage.api.Location;
-import kotlin.jvm.JvmClassMappingKt;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mangorage.mavenchecker.helper.SettingsHolder;
+import org.mangorage.mavenchecker.helper.WebhookHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +25,7 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
         }    }
 
     /**
-     * @param created -> Defines when we first created this object...
+     * @param created → Defines when we first created this object...
      */
     public record Data(long created, AtomicLong lastUpdated, List<Location> locations) {}
 
@@ -43,6 +38,8 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
         data.locations().forEach(location -> {
             extensions().getLogger().info(location.toString());
         });
+
+        WebhookHelper.send(info, data);
     }
 
     @Override

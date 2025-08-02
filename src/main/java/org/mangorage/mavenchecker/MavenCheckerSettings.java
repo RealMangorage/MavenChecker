@@ -5,11 +5,12 @@ import com.reposilite.configuration.shared.api.Doc;
 import com.reposilite.configuration.shared.api.SharedSettings;
 import io.javalin.openapi.JsonSchema;
 
-@JsonSchema
+@JsonSchema(requireNonNulls = false)
 @Doc(title = "MavenChecker Settings", description = "MavenChecker settings")
 public final class MavenCheckerSettings implements SharedSettings {
     public long lastUpdatedAge = 250;
     public long checkRate = 1000;
+    public String discordWebhook;
 
 
     @Doc(
@@ -31,5 +32,13 @@ public final class MavenCheckerSettings implements SharedSettings {
     )
     public long getCheckRate() {
         return checkRate;
+    }
+
+    @Doc(
+            title = "Discord Webhook",
+            description = "Where do you want to send the discord notifications..."
+    )
+    public String getDiscordWebhook() {
+        return discordWebhook;
     }
 }

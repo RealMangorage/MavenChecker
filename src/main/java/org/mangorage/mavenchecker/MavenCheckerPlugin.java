@@ -39,7 +39,7 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
             extensions().getLogger().info(location.toString());
         });
 
-        WebhookHelper.send(info, data);
+        WebhookHelper.send(info, data, settings.get().getDiscordWebhook());
     }
 
     @Override

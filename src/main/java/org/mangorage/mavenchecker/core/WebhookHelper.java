@@ -11,18 +11,48 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 public final class WebhookHelper {
+
     public static void sendDiscordWebhook(MavenCheckerPlugin.Info info, MavenCheckerPlugin.Data data, Webhook webhook) {
         try (WebhookClient client = WebhookClient.withUrl(webhook.url())) {
+            List<String> lines = new ArrayList<>();
+            lines.add("Got new Artifact (Took %s ms) -> ".formatted(data.lastUpdated().get() - data.created()) + info.asString());
+            data.locations().forEach(location -> lines.add(location.toString()));
 
-            client.send("Got new Artifact (Took %s ms) -> ".formatted(data.lastUpdated().get() - data.created()) + info.asString());
-            data.locations().forEach(location -> {
-                client.send(location.toString());
-            });
+            List<String> messages = groupLinesIntoMessages(lines, 2000);
+            for (String msg : messages) {
+                client.send(msg);
+            }
         }
+
+    }
+
+    private static List<String> groupLinesIntoMessages(List<String> lines, int limit) {
+        List<String> result = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+
+        for (String line : lines) {
+            // +1 for newline character (which will be added)
+            if (current.length() + line.length() + 1 > limit) {
+                result.add(current.toString());
+                current = new StringBuilder();
+            }
+            if (current.length() > 0) {
+                current.append('\n');
+            }
+            current.append(line);
+        }
+
+        if (!current.isEmpty()) {
+            result.add(current.toString());
+        }
+
+        return result;
     }
 
     public static void sendWebhook(Webhook webhook, HasJson hasJson) {

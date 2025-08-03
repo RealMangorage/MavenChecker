@@ -15,19 +15,15 @@ import org.mangorage.mavenchecker.core.data.forge.ForgeRegenAlert;
 import org.mangorage.mavenchecker.core.Constants;
 import org.mangorage.mavenchecker.core.SettingsHolder;
 import org.mangorage.mavenchecker.core.WebhookHelper;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Plugin(name = "mavenchecker", version = Constants.VERSION, settings = MavenCheckerSettings.class)

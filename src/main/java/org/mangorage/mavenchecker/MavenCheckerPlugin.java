@@ -91,6 +91,13 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
     public @Nullable Facade initialize() {
         extensions().getLogger().debug("Init MavenChecker Plugin");
 
+        if (executorService instanceof ScheduledThreadPoolExecutor executor) {
+            executor.purge();
+            executor.setRemoveOnCancelPolicy(true);
+            executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
+            executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+        }
+
         settingsHolder = SettingsHolder.of(MavenCheckerSettings.class, extensions());
         final var settings = settingsHolder.get();
 
@@ -120,15 +127,9 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
             extensions().getLogger().info("Shutting down our Scheduler");
             task.cancel(true);
 
-            if (executorService instanceof ThreadPoolExecutor executor) {
-                executor.purge();
-            }
-
-            try {
-                executorService.awaitTermination(1000, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            // InterruptedException thrown because of shutting it down forcefully.
+            // Nothing important here anyway...
+            executorService.shutdownNow();
         });
 
         return null;

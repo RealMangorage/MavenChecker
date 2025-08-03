@@ -3,6 +3,7 @@ package org.mangorage.mavenchecker;
 import com.reposilite.maven.api.DeployEvent;
 import com.reposilite.plugin.api.Facade;
 import com.reposilite.plugin.api.Plugin;
+import com.reposilite.plugin.api.ReposiliteDisposeEvent;
 import com.reposilite.plugin.api.ReposilitePlugin;
 import com.reposilite.storage.api.Location;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Plugin(name = "mavenchecker", version = Constants.VERSION, settings = MavenCheckerSettings.class)
@@ -33,11 +37,13 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
     /**
      * @param created → Defines when we first created this object...
      */
-    public record Data(long created, AtomicLong lastUpdated, List<Location> locations) {}
+    public record Data(long created, AtomicLong lastUpdated, String user, List<Location> locations) {}
 
 
-    public final Map<Info, Data> infoCache = new ConcurrentHashMap<>();
+    private final ExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    private final Map<Info, Data> infoCache = new ConcurrentHashMap<>();
     private SettingsHolder<MavenCheckerSettings> settingsHolder;
+
 
     public void newArtifacts(Info info, Data data) {
         extensions().getLogger().info("Got new Artifact (Took %s ms) -> ".formatted(data.lastUpdated().get() - data.created()) + info.asString());
@@ -61,28 +67,22 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
                 });
     }
 
+    private void task() {
+        infoCache.forEach((info, data) -> {
+            // Wait atleast 5 seconds to ensure we got everything!
+            if (System.currentTimeMillis() - data.lastUpdated().get() > settingsHolder.get().getLastUpdatedAge()) {
+                newArtifacts(info, data);
+                infoCache.remove(info);
+            }
+        });
+    }
+
     @Override
     public @Nullable Facade initialize() {
         extensions().getLogger().debug("Init MavenChecker Plugin");
 
         settingsHolder = SettingsHolder.of(MavenCheckerSettings.class, extensions());
-
-        Executors.newSingleThreadExecutor().execute(() -> {
-            while (true) {
-                try {
-                    infoCache.forEach((info, data) -> {
-                        // Wait atleast 5 seconds to ensure we got everything!
-                        if (System.currentTimeMillis() - data.lastUpdated().get() > settingsHolder.get().getLastUpdatedAge()) {
-                            newArtifacts(info, data);
-                            infoCache.remove(info);
-                        }
-                    });
-                    Thread.sleep(settingsHolder.get().getCheckRate()); // Check every 10 seconds...
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
+        final var settings = settingsHolder.get();
 
         extensions().registerEvent(DeployEvent.class, event -> {
             extensions().getLogger().debug("START");
@@ -93,11 +93,47 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
                 final Info info = extractGAV(event.getGav().toString());
                 if (info != null) {
                     final var timeStamp = System.currentTimeMillis();
-                    final var data = infoCache.computeIfAbsent(info, a -> new Data(timeStamp, new AtomicLong(timeStamp), new ArrayList<>()));
+                    final var data = infoCache.computeIfAbsent(info, a -> new Data(timeStamp, new AtomicLong(timeStamp), event.getBy(), new ArrayList<>()));
                     data.locations().add(event.getGav());
                     data.lastUpdated().set(timeStamp);
                 }
             }
+        });
+
+        extensions().getLogger().info("Scheduled our task to be ran every %sms".formatted(settings.getCheckRate()));
+
+        final AtomicBoolean running = new AtomicBoolean(true);
+
+        final var task = executorService.submit(() -> {
+            while (running.get()) {
+                try {
+                    Thread.sleep(settings.getCheckRate());
+                    // Always run after, incase we threw an exception,
+                    // we dont want to immediately run the below in that event...
+
+                    infoCache.forEach((info, data) -> {
+                        // Wait atleast 5 seconds to ensure we got everything!
+                        if (System.currentTimeMillis() - data.lastUpdated().get() > settingsHolder.get().getLastUpdatedAge()) {
+                            newArtifacts(info, data);
+                            infoCache.remove(info);
+                        }
+                    });
+                } catch (Throwable throwable) {
+                    extensions().getLogger().error(throwable.getMessage());
+                    System.out.println();
+                    if (throwable instanceof InterruptedException) {
+                        extensions().getLogger().error("can be ignored if Reposilite shutdown...");
+                    }
+
+                    throwable.printStackTrace();
+                }
+            }
+        });
+
+
+        extensions().registerEvent(ReposiliteDisposeEvent.class, event -> {
+            extensions().getLogger().info("Shutting down our Scheduler");
+            running.set(false);
         });
 
         return null;

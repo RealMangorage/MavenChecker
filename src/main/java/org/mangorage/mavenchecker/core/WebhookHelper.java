@@ -80,7 +80,6 @@ public final class WebhookHelper {
                 String response = new String(responseStream.readAllBytes(), StandardCharsets.UTF_8);
                 System.out.println("Webhook response body: " + response);
             }
-
         } catch (Exception e) {
             System.err.println("Failed to send webhook: " + e.getClass().getSimpleName() + " - " + e.getMessage());
         }

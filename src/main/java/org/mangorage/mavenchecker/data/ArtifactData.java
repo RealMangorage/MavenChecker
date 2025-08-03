@@ -1,0 +1,33 @@
+package org.mangorage.mavenchecker.data;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.reposilite.storage.api.Location;
+import org.mangorage.mavenchecker.MavenCheckerPlugin;
+
+import java.util.List;
+
+public record ArtifactData(
+        String group,
+        String artifactId,
+        String version,
+        List<String> files
+) {
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+
+    public static ArtifactData of(MavenCheckerPlugin.Info info, MavenCheckerPlugin.Data data) {
+        return new ArtifactData(
+                info.group(),
+                info.artifact(),
+                info.version(),
+                data.locations()
+                        .stream()
+                        .map(Location::toString)
+                        .toList()
+        );
+    }
+
+    public String toJson() {
+        return GSON.toJson(this, ArtifactData.class);
+    }
+}

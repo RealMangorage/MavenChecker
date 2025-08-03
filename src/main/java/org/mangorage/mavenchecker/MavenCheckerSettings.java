@@ -11,6 +11,7 @@ public final class MavenCheckerSettings implements SharedSettings {
     public long lastUpdatedAge = 250;
     public long checkRate = 1000;
     public String discordWebhook;
+    public String webhook;
 
 
     @Doc(
@@ -40,5 +41,13 @@ public final class MavenCheckerSettings implements SharedSettings {
     )
     public String getDiscordWebhook() {
         return discordWebhook;
+    }
+
+    @Doc(
+            title = "General Webhook",
+            description = "Where do you want to trigger something?"
+    )
+    public String getWebhook() {
+        return webhook;
     }
 }

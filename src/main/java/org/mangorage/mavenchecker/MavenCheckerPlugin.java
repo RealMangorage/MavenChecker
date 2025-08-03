@@ -6,6 +6,7 @@ import com.reposilite.plugin.api.Plugin;
 import com.reposilite.plugin.api.ReposilitePlugin;
 import com.reposilite.storage.api.Location;
 import org.jetbrains.annotations.Nullable;
+import org.mangorage.mavenchecker.data.ArtifactData;
 import org.mangorage.mavenchecker.helper.SettingsHolder;
 import org.mangorage.mavenchecker.helper.WebhookHelper;
 
@@ -40,6 +41,7 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
         });
 
         WebhookHelper.send(info, data, settings.get().getDiscordWebhook());
+        WebhookHelper.sendWebhook(settings.get().getWebhook(), ArtifactData.of(info, data).toJson());
     }
 
     @Override

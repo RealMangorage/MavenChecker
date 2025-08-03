@@ -12,9 +12,7 @@ public record ArtifactData(
         String artifactId,
         String version,
         List<String> files
-) {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-
+) implements HasJson {
     public static ArtifactData of(MavenCheckerPlugin.Info info, MavenCheckerPlugin.Data data) {
         return new ArtifactData(
                 info.group(),
@@ -25,9 +23,5 @@ public record ArtifactData(
                         .map(Location::toString)
                         .toList()
         );
-    }
-
-    public String toJson() {
-        return GSON.toJson(this, ArtifactData.class);
     }
 }

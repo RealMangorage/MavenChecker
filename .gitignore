@@ -47,3 +47,4 @@ bin/
 /run/logs/
 /run/latest.log
 run/reposilite.db
+/run/reposilite-3.5.25.jar

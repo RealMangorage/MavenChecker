@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'org.mangorage'
-version = '1.0-SNAPSHOT'
+version = '1.0.0'
 
 application {
     mainClass = "com.reposilite.ReposiliteLauncherKt"
@@ -29,11 +29,23 @@ repositories {
     }
 }
 
+shadowJar {
+    dependencies {
+        include(dependency("club.minnced:discord-webhooks"))
+        include(dependency("org.slf4j:slf4j-api:1.7.32"))
+        include(dependency("com.squareup.okhttp3:okhttp:4.10.0"))
+        include(dependency("org.json:json:20230618"))
+        include(dependency("com.squareup.okio:okio-jvm:3.0.0"))
+    }
+}
+
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 
     implementation("com.reposilite:reposilite:3.5.25:all")
+
+    // External deps
     implementation("club.minnced:discord-webhooks:0.8.4")
 }
 

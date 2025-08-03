@@ -1,7 +1,5 @@
 package org.mangorage.mavenchecker.data;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.reposilite.storage.api.Location;
 import org.mangorage.mavenchecker.MavenCheckerPlugin;
 

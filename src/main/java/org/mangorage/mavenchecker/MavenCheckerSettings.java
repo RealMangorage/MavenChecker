@@ -1,6 +1,5 @@
 package org.mangorage.mavenchecker;
 
-
 import com.reposilite.configuration.shared.api.Doc;
 import com.reposilite.configuration.shared.api.SharedSettings;
 import io.javalin.openapi.JsonSchema;

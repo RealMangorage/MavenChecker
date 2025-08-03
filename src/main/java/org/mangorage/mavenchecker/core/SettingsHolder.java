@@ -21,4 +21,8 @@ public final class SettingsHolder<T> {
     public T get() {
         return reference.get();
     }
+
+    public MutableReference<T> getReference() {
+        return reference;
+    }
 }

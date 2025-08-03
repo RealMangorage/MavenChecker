@@ -22,6 +22,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -40,10 +44,11 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
     public record Data(long created, AtomicLong lastUpdated, String user, List<Location> locations) {}
 
 
-    private final ExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private final Map<Info, Data> infoCache = new ConcurrentHashMap<>();
     private SettingsHolder<MavenCheckerSettings> settingsHolder;
 
+    private ScheduledFuture<?> task;
 
     public void newArtifacts(Info info, Data data) {
         extensions().getLogger().info("Got new Artifact (Took %s ms) -> ".formatted(data.lastUpdated().get() - data.created()) + info.asString());
@@ -77,6 +82,11 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
         });
     }
 
+    private void scheduleTask(long checkRate) {
+        extensions().getLogger().debug("Scheduled our task to be ran every %sms".formatted(checkRate));
+        task = executorService.scheduleAtFixedRate(this::task, 0, checkRate, TimeUnit.MILLISECONDS);
+    }
+
     @Override
     public @Nullable Facade initialize() {
         extensions().getLogger().debug("Init MavenChecker Plugin");
@@ -85,10 +95,6 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
         final var settings = settingsHolder.get();
 
         extensions().registerEvent(DeployEvent.class, event -> {
-            extensions().getLogger().debug("START");
-            extensions().getLogger().debug(event.getGav());
-            extensions().getLogger().debug("END");
-
             if (!event.getGav().contains("/maven-metadata.xml")) {
                 final Info info = extractGAV(event.getGav().toString());
                 if (info != null) {
@@ -100,40 +106,29 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
             }
         });
 
-        extensions().getLogger().info("Scheduled our task to be ran every %sms".formatted(settings.getCheckRate()));
-
-        final AtomicBoolean running = new AtomicBoolean(true);
-
-        final var task = executorService.submit(() -> {
-            while (running.get()) {
-                try {
-                    Thread.sleep(settings.getCheckRate());
-                    // Always run after, incase we threw an exception,
-                    // we dont want to immediately run the below in that event...
-
-                    infoCache.forEach((info, data) -> {
-                        // Wait atleast 5 seconds to ensure we got everything!
-                        if (System.currentTimeMillis() - data.lastUpdated().get() > settingsHolder.get().getLastUpdatedAge()) {
-                            newArtifacts(info, data);
-                            infoCache.remove(info);
-                        }
-                    });
-                } catch (Throwable throwable) {
-                    extensions().getLogger().error(throwable.getMessage());
-                    System.out.println();
-                    if (throwable instanceof InterruptedException) {
-                        extensions().getLogger().error("can be ignored if Reposilite shutdown...");
-                    }
-
-                    throwable.printStackTrace();
-                }
-            }
+        settingsHolder.getReference().subscribe(newSettings -> {
+           task.cancel(false);
+           if (task.isCancelled() || task.isDone()) {
+               extensions().getLogger().debug("Cancelled our MavenCheck task successfully");
+           }
+           scheduleTask(newSettings.getCheckRate());
         });
 
+        scheduleTask(settings.getCheckRate());
 
         extensions().registerEvent(ReposiliteDisposeEvent.class, event -> {
             extensions().getLogger().info("Shutting down our Scheduler");
-            running.set(false);
+            task.cancel(true);
+
+            if (executorService instanceof ThreadPoolExecutor executor) {
+                executor.purge();
+            }
+
+            try {
+                executorService.awaitTermination(1000, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         return null;

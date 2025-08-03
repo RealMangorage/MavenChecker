@@ -50,6 +50,7 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
                     case NORMAL -> WebhookHelper.sendWebhook(webhook, ArtifactData.of(info, data));
                     case DISCORD -> WebhookHelper.sendDiscordWebhook(info, data, webhook);
                     case REGEN -> WebhookHelper.sendWebhook(webhook, ForgeRegenAlert.of(info.group(), info.artifact()));
+                    case PROMOTE_LATEST -> WebhookHelper.sendWebhook(webhook, ForgePromoteAlert.latest(info.group(), info.artifact(), info.version()));
                 }
             }
         });

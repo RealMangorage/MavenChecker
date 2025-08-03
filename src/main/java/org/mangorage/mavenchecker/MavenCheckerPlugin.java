@@ -6,7 +6,9 @@ import com.reposilite.plugin.api.Plugin;
 import com.reposilite.plugin.api.ReposilitePlugin;
 import com.reposilite.storage.api.Location;
 import org.jetbrains.annotations.Nullable;
+import org.mangorage.mavenchecker.data.ActionType;
 import org.mangorage.mavenchecker.data.ArtifactData;
+import org.mangorage.mavenchecker.data.Webhook;
 import org.mangorage.mavenchecker.data.forge.ForgePromoteAlert;
 import org.mangorage.mavenchecker.data.forge.ForgeRegenAlert;
 import org.mangorage.mavenchecker.helper.SettingsHolder;
@@ -44,16 +46,18 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
 
         final var settings = settingsHolder.get();
 
-        settings.getWebhooks().forEach(webhook -> {
-            if (webhook.triggerAction().contains("newArtifacts") && webhook.enabled()) {
-                switch (webhook.webhookType()) {
-                    case NORMAL -> WebhookHelper.sendWebhook(webhook, ArtifactData.of(info, data));
-                    case DISCORD -> WebhookHelper.sendDiscordWebhook(info, data, webhook);
-                    case REGEN -> WebhookHelper.sendWebhook(webhook, ForgeRegenAlert.of(info.group(), info.artifact()));
-                    case PROMOTE_LATEST -> WebhookHelper.sendWebhook(webhook, ForgePromoteAlert.latest(info.group(), info.artifact(), info.version()));
-                }
-            }
-        });
+        settings.getWebhooks()
+                .stream()
+                .filter(Webhook::enabled)
+                .filter(webhook -> webhook.actionType() == ActionType.NEW_ARTIFACTS)
+                .forEach(webhook -> {
+                    switch (webhook.webhookType()) {
+                        case NORMAL -> WebhookHelper.sendWebhook(webhook, ArtifactData.of(info, data));
+                        case DISCORD -> WebhookHelper.sendDiscordWebhook(info, data, webhook);
+                        case REGEN -> WebhookHelper.sendWebhook(webhook, ForgeRegenAlert.of(info.group(), info.artifact()));
+                        case PROMOTE_LATEST -> WebhookHelper.sendWebhook(webhook, ForgePromoteAlert.latest(info.group(), info.artifact(), info.version()));
+                    }
+                });
     }
 
     @Override

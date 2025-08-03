@@ -1,6 +1,7 @@
 package org.mangorage.mavenchecker.core;
 
 import club.minnced.discord.webhook.WebhookClient;
+import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import org.mangorage.mavenchecker.MavenCheckerPlugin;
 import org.mangorage.mavenchecker.core.data.HasJson;
 import org.mangorage.mavenchecker.core.data.Webhook;
@@ -20,13 +21,19 @@ public final class WebhookHelper {
 
     public static void sendDiscordWebhook(MavenCheckerPlugin.Info info, MavenCheckerPlugin.Data data, Webhook webhook) {
         try (WebhookClient client = WebhookClient.withUrl(webhook.url())) {
+
             List<String> lines = new ArrayList<>();
             lines.add("Got new Artifact (Took %s ms) -> ".formatted(data.lastUpdated().get() - data.created()) + info.asString());
             data.locations().forEach(location -> lines.add(location.toString()));
 
             List<String> messages = groupLinesIntoMessages(lines, 2000);
             for (String msg : messages) {
-                client.send(msg);
+                client.send(
+                        new WebhookMessageBuilder()
+                                .setContent(msg)
+                                .setUsername("MavenChecker")
+                                .build()
+                );
             }
         }
 

@@ -5,4 +5,8 @@ import org.mangorage.mavenchecker.data.HasJson;
 public record ForgeRegenAlert(
         String group,
         String artifact
-) implements HasJson { }
+) implements HasJson {
+    public static ForgeRegenAlert of(String group, String artifact) {
+        return new ForgeRegenAlert(group, artifact);
+    }
+}

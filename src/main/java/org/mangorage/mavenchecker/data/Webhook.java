@@ -1,9 +1,17 @@
 package org.mangorage.mavenchecker.data;
 
-public interface Webhook {
-    String url();
-    boolean enabled();
+public record Webhook(
+        String id,
+        String triggerAction,
+        WebhookType webhookType,
 
-    String username();
-    String password();
+        String username,
+        String password,
+        String url,
+        boolean enabled
+) {
+    @Override
+    public String toString() {
+        return "Test";
+    }
 }

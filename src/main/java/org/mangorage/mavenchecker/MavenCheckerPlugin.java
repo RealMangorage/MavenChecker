@@ -8,6 +8,7 @@ import com.reposilite.storage.api.Location;
 import org.jetbrains.annotations.Nullable;
 import org.mangorage.mavenchecker.data.ArtifactData;
 import org.mangorage.mavenchecker.data.forge.ForgePromoteAlert;
+import org.mangorage.mavenchecker.data.forge.ForgeRegenAlert;
 import org.mangorage.mavenchecker.helper.SettingsHolder;
 import org.mangorage.mavenchecker.helper.WebhookHelper;
 
@@ -43,14 +44,15 @@ public final class MavenCheckerPlugin extends ReposilitePlugin {
 
         final var settings = settingsHolder.get();
 
-        if (settings.getDiscordWebhook().enabled())
-            WebhookHelper.sendDiscordWebhook(info, data, settings.getDiscordWebhook());
-
-        if (settings.getWebhook().enabled())
-            WebhookHelper.sendWebhook(settings.getWebhook(), ArtifactData.of(info, data).toJson());
-
-        if (settings.getForgeWebhook().enabled())
-            WebhookHelper.sendWebhook(settings.getForgeWebhook(), ForgePromoteAlert.latest(info.group(), info.artifact(), info.version()).toJson());
+        settings.getWebhooks().forEach(webhook -> {
+            if (webhook.triggerAction().contains("newArtifacts") && webhook.enabled()) {
+                switch (webhook.webhookType()) {
+                    case NORMAL -> WebhookHelper.sendWebhook(webhook, ArtifactData.of(info, data));
+                    case DISCORD -> WebhookHelper.sendDiscordWebhook(info, data, webhook);
+                    case REGEN -> WebhookHelper.sendWebhook(webhook, ForgeRegenAlert.of(info.group(), info.artifact()));
+                }
+            }
+        });
     }
 
     @Override

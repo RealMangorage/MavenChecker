@@ -6,13 +6,14 @@ import com.reposilite.plugin.api.Plugin;
 import com.reposilite.plugin.api.ReposilitePlugin;
 import com.reposilite.storage.api.Location;
 import org.jetbrains.annotations.Nullable;
-import org.mangorage.mavenchecker.data.ActionType;
-import org.mangorage.mavenchecker.data.ArtifactData;
-import org.mangorage.mavenchecker.data.Webhook;
-import org.mangorage.mavenchecker.data.forge.ForgePromoteAlert;
-import org.mangorage.mavenchecker.data.forge.ForgeRegenAlert;
-import org.mangorage.mavenchecker.helper.SettingsHolder;
-import org.mangorage.mavenchecker.helper.WebhookHelper;
+import org.mangorage.mavenchecker.core.data.ActionType;
+import org.mangorage.mavenchecker.core.data.ArtifactData;
+import org.mangorage.mavenchecker.core.data.Webhook;
+import org.mangorage.mavenchecker.core.data.forge.ForgePromoteAlert;
+import org.mangorage.mavenchecker.core.data.forge.ForgeRegenAlert;
+import org.mangorage.mavenchecker.core.Constants;
+import org.mangorage.mavenchecker.core.SettingsHolder;
+import org.mangorage.mavenchecker.core.WebhookHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Plugin(name = "mavenchecker", settings = MavenCheckerSettings.class)
+@Plugin(name = "mavenchecker", version = Constants.VERSION, settings = MavenCheckerSettings.class)
 public final class MavenCheckerPlugin extends ReposilitePlugin {
 
     public record Info(String group, String artifact, String version) {

@@ -1,4 +1,4 @@
-package org.mangorage.mavenchecker.data;
+package org.mangorage.mavenchecker.core.data;
 
 import com.reposilite.storage.api.Location;
 import org.mangorage.mavenchecker.MavenCheckerPlugin;

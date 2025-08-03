@@ -1,6 +1,6 @@
-package org.mangorage.mavenchecker.data.forge;
+package org.mangorage.mavenchecker.core.data.forge;
 
-import org.mangorage.mavenchecker.data.HasJson;
+import org.mangorage.mavenchecker.core.data.HasJson;
 
 public record ForgePromoteAlert(
         String group,

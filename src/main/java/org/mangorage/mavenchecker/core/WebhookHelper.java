@@ -1,9 +1,9 @@
-package org.mangorage.mavenchecker.helper;
+package org.mangorage.mavenchecker.core;
 
 import club.minnced.discord.webhook.WebhookClient;
 import org.mangorage.mavenchecker.MavenCheckerPlugin;
-import org.mangorage.mavenchecker.data.HasJson;
-import org.mangorage.mavenchecker.data.Webhook;
+import org.mangorage.mavenchecker.core.data.HasJson;
+import org.mangorage.mavenchecker.core.data.Webhook;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;

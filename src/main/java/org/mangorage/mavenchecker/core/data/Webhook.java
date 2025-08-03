@@ -1,4 +1,4 @@
-package org.mangorage.mavenchecker.data;
+package org.mangorage.mavenchecker.core.data;
 
 public record Webhook(
         String id,

@@ -1,6 +1,6 @@
-package org.mangorage.mavenchecker.data;
+package org.mangorage.mavenchecker.core.data;
 
-import org.mangorage.mavenchecker.helper.Constants;
+import org.mangorage.mavenchecker.core.Constants;
 
 public interface HasJson {
     default String toJson() {

@@ -1,4 +1,4 @@
-package org.mangorage.mavenchecker.helper;
+package org.mangorage.mavenchecker.core;
 
 import com.reposilite.configuration.shared.SharedConfigurationFacade;
 import com.reposilite.configuration.shared.api.SharedSettings;

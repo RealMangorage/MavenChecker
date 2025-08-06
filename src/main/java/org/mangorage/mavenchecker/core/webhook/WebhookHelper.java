@@ -1,10 +1,9 @@
-package org.mangorage.mavenchecker.core;
+package org.mangorage.mavenchecker.core.webhook;
 
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import org.mangorage.mavenchecker.MavenCheckerPlugin;
-import org.mangorage.mavenchecker.core.data.HasJson;
-import org.mangorage.mavenchecker.core.data.Webhook;
+import org.mangorage.mavenchecker.core.HasJson;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
@@ -17,6 +16,9 @@ import java.util.Base64;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
+/**
+ * Helper class to handle various webhook implementations
+ */
 public final class WebhookHelper {
 
     public static void sendDiscordWebhook(MavenCheckerPlugin.Info info, MavenCheckerPlugin.Data data, Webhook webhook) {

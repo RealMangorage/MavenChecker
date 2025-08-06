@@ -1,7 +1,10 @@
 package org.mangorage.mavenchecker.core.data.forge;
 
-import org.mangorage.mavenchecker.core.data.HasJson;
+import org.mangorage.mavenchecker.core.HasJson;
 
+/**
+ * Everything needed to promote an Artifact in the Forge Files site
+ */
 public record ForgePromoteAlert(
         String group,
         String artifact,

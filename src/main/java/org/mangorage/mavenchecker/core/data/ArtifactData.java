@@ -2,9 +2,13 @@ package org.mangorage.mavenchecker.core.data;
 
 import com.reposilite.storage.api.Location;
 import org.mangorage.mavenchecker.MavenCheckerPlugin;
+import org.mangorage.mavenchecker.core.HasJson;
 
 import java.util.List;
 
+/**
+ * All the info about an artifact and the files it has
+ */
 public record ArtifactData(
         String group,
         String artifactId,

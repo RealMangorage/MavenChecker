@@ -1,4 +1,4 @@
-package org.mangorage.mavenchecker.core;
+package org.mangorage.mavenchecker.core.settings;
 
 import com.reposilite.configuration.shared.SharedConfigurationFacade;
 import com.reposilite.configuration.shared.api.SharedSettings;
@@ -6,6 +6,9 @@ import com.reposilite.plugin.Extensions;
 import kotlin.jvm.JvmClassMappingKt;
 import panda.std.reactive.MutableReference;
 
+/**
+ * Settings for our plugin
+ */
 public final class SettingsHolder<T> {
     public static <T extends SharedSettings> SettingsHolder<T> of(Class<T> tClass, Extensions extensions) {
         final var provider = extensions.facade(SharedConfigurationFacade.class);

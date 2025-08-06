@@ -7,14 +7,15 @@ import com.reposilite.plugin.api.ReposiliteDisposeEvent;
 import com.reposilite.plugin.api.ReposilitePlugin;
 import com.reposilite.storage.api.Location;
 import org.jetbrains.annotations.Nullable;
-import org.mangorage.mavenchecker.core.data.ActionType;
+import org.mangorage.mavenchecker.core.ActionType;
 import org.mangorage.mavenchecker.core.data.ArtifactData;
-import org.mangorage.mavenchecker.core.data.Webhook;
+import org.mangorage.mavenchecker.core.settings.MavenCheckerSettings;
+import org.mangorage.mavenchecker.core.webhook.Webhook;
 import org.mangorage.mavenchecker.core.data.forge.ForgePromoteAlert;
 import org.mangorage.mavenchecker.core.data.forge.ForgeRegenAlert;
 import org.mangorage.mavenchecker.core.Constants;
-import org.mangorage.mavenchecker.core.SettingsHolder;
-import org.mangorage.mavenchecker.core.WebhookHelper;
+import org.mangorage.mavenchecker.core.settings.SettingsHolder;
+import org.mangorage.mavenchecker.core.webhook.WebhookHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,13 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Plugin Implementation
+ *
+ * TODO: Clean everything here up by moving everything to
+ * TODO: a dedicated class, when we add more {@link ActionType}'s
+ * Currently this is fine, as we only trigger when we get new artifacts.
+ */
 @Plugin(name = "mavenchecker", version = Constants.VERSION, settings = MavenCheckerSettings.class)
 public final class MavenCheckerPlugin extends ReposilitePlugin {
 

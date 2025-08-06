@@ -1,9 +1,9 @@
-package org.mangorage.mavenchecker;
+package org.mangorage.mavenchecker.core.settings;
 
 import com.reposilite.configuration.shared.api.Doc;
 import com.reposilite.configuration.shared.api.SharedSettings;
 import io.javalin.openapi.JsonSchema;
-import org.mangorage.mavenchecker.core.data.Webhook;
+import org.mangorage.mavenchecker.core.webhook.Webhook;
 
 import java.util.ArrayList;
 

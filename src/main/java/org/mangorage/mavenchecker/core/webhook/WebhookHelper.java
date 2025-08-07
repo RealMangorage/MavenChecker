@@ -4,6 +4,8 @@ import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import org.mangorage.mavenchecker.MavenCheckerPlugin;
 import org.mangorage.mavenchecker.core.HasJson;
+import org.mangorage.mavenchecker.core.data.artifact.ArtifactInfo;
+import org.mangorage.mavenchecker.core.data.artifact.ArtifactSnapshotData;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
@@ -21,12 +23,12 @@ import java.util.zip.GZIPInputStream;
  */
 public final class WebhookHelper {
 
-    public static void sendDiscordWebhook(MavenCheckerPlugin.Info info, MavenCheckerPlugin.Data data, Webhook webhook) {
+    public static void sendDiscordWebhook(ArtifactInfo info, ArtifactSnapshotData data, Webhook webhook) {
         try (WebhookClient client = WebhookClient.withUrl(webhook.url())) {
 
             List<String> lines = new ArrayList<>();
-            lines.add("Got new Artifact (Took %s ms) -> ".formatted(data.lastUpdated().get() - data.created()) + info.asString());
-            data.locations().forEach(location -> lines.add(location.toString()));
+            lines.add("Got new Artifact (Took %s ms) -> ".formatted(data.getLastUpdated() - data.getCreated()) + info.asString());
+            data.getLocationList().forEach(location -> lines.add(location.toString()));
 
             List<String> messages = groupLinesIntoMessages(lines, 2000);
             for (String msg : messages) {

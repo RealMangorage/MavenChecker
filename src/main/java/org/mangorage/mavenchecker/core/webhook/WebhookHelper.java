@@ -2,7 +2,6 @@ package org.mangorage.mavenchecker.core.webhook;
 
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
-import org.mangorage.mavenchecker.MavenCheckerPlugin;
 import org.mangorage.mavenchecker.core.HasJson;
 import org.mangorage.mavenchecker.core.data.artifact.ArtifactInfo;
 import org.mangorage.mavenchecker.core.data.artifact.ArtifactSnapshotData;

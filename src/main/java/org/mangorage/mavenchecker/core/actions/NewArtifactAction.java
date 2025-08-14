@@ -2,7 +2,6 @@ package org.mangorage.mavenchecker.core.actions;
 
 import com.reposilite.maven.api.DeployEvent;
 import com.reposilite.plugin.Extensions;
-import com.reposilite.plugin.api.ReposiliteDisposeEvent;
 import com.reposilite.plugin.api.ReposilitePlugin;
 import com.reposilite.plugin.api.ReposilitePostInitializeEvent;
 import org.mangorage.mavenchecker.core.ActionType;
@@ -16,11 +15,8 @@ import org.mangorage.mavenchecker.core.webhook.Webhook;
 import org.mangorage.mavenchecker.core.webhook.WebhookHelper;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public final class NewArtifactAction {

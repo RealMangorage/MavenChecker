@@ -1,7 +1,6 @@
 package org.mangorage.mavenchecker.core.data.artifact;
 
 import com.reposilite.storage.api.Location;
-import org.mangorage.mavenchecker.MavenCheckerPlugin;
 import org.mangorage.mavenchecker.core.HasJson;
 
 import java.util.List;
